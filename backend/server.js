@@ -5,6 +5,12 @@ const dotenv = require("dotenv").config();
 connectDB();
 const app = express();
 
+// middleware
+app.use(express.json());
+app.use(express.urlencoded({
+    extended: false
+}))
+
 // load route
 app.use("/api/post",require("./routes/postRoutes"))
 
