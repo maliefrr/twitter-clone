@@ -12,7 +12,8 @@ app.use(express.urlencoded({
 }))
 
 // load route
-app.use("/api/post",require("./routes/postRoutes"))
+app.use("/api/post",require("./routes/postRoutes"));
+app.use("/api/users",require("./routes/userRoutes"));
 
 
 const port = process.env.PORT || 3000;
