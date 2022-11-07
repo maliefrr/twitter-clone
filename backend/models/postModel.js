@@ -5,11 +5,11 @@ const postSchema = mongoose.Schema({
         type: String,
         required: [true,"The text field cannot be blank"]
     },
-    // user: {
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     required: true,
-    //     ref: "User"
-    // }
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: "User"
+    }
 },{
     timestamps: true
 })
