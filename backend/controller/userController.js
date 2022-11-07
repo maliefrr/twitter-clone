@@ -1,6 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const userModel = require("../models/userModel");
-const bcrypt = require("bcryptjs")
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken")
 
 
 // @desc create new user
@@ -34,19 +35,79 @@ const userRegister = asyncHandler(async (req,res) => {
             name,
             email,
             password : hash
-        })
+        });
         res.status(201).json({
             statusCode: 201,
             message: "The user has been successfully registered",
             data: {
                 id: newUser.id,
                 name: newUser.name,
-                email: newUser.email
+                email: newUser.email,
+                token: getToken(newUser._id)
             }
         })
     }
+});
+
+// @desc login user
+// @route POST /api/users/login
+// @access Public 
+const login = asyncHandler(async (req,res) => {
+    const {email,password} = req.body;
+    if(!email,!password){
+        res.status(400).json({
+            statusCode: 400,
+            message: "Fill all the field"
+        })
+    }
+    const user = await userModel.findOne({email});
+    if(!user){
+        res.status(404).json({
+            statusCode: 404,
+            message: "User not exist"
+        })
+    }
+    res.status(200).json({
+        statusCode: 200,
+        message: "login success",
+        data: {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            token: getToken(user._id)
+        }
+    })
+});
+
+// @desc get user profile
+// @route GET /api/users/me
+// @access Private
+const getUserProfile = asyncHandler(async (req,res) => {
+    const user = await userModel.findById(req.user.id);
+    if(!user){
+        res.status(404).json({
+            statusCode: 404,
+            message: "User not found"
+        })
+    }
+    res.status(200).json({
+        statusCode: 200,
+        data: {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+        }
+    })
 })
 
+const getToken = (id) => {
+    return jwt.sign({id},process.env.JWT_SECRET,{
+        expiresIn: "1d"
+    })
+}
+
 module.exports = {
-    userRegister
+    userRegister,
+    login,
+    getUserProfile
 }
