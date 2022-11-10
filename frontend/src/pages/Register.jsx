@@ -1,5 +1,11 @@
-import React, { useState } from 'react'
-// import { useEffect } from 'react'
+import React from 'react'
+import {FaUserPlus} from 'react-icons/fa'
+import { useState,useEffect } from 'react'
+import {useSelector, useDispatch} from 'react-redux'
+import { useNavigate } from 'react-router-dom'
+import {toast} from 'react-toastify'
+import Spinner from '../components/Spinner'
+import { reset, register } from '../features/auth/authSlice'
 
 const Register = () => {
     const [formData,setFormData] = useState({
@@ -11,7 +17,22 @@ const Register = () => {
 
     const {name,email,password,passwordConfirmation} = formData
 
+    const navigate = useNavigate()
+    const dispatch = useDispatch()
+    const {user,isLoading,isSuccess,isError,message} = useSelector((state) => state.auth)
     
+
+    useEffect(() => {
+        if(isError) {
+            toast.error(message)
+        }
+        if(isSuccess || user) {
+            toast.success("User successfully registered")
+            navigate("/")
+        }
+
+        dispatch(reset())
+    },[user,isSuccess,isError,message,navigate,dispatch])
 
     const onChange = (e) => {
         setFormData((prev) => ({
@@ -23,13 +44,24 @@ const Register = () => {
     const onSubmit = (e) => {
         e.preventDefault()
 
-        console.log(formData)
+        if(password !== passwordConfirmation) {
+            toast.error("Password and password confirmation do not match")
+        } else {
+            const userData = {
+                name,email,password,passwordConfirmation
+            }
+            dispatch(register(userData))
+        }
         setFormData(() => ({
             name: "",
             email: "",
             password: "",
             passwordConfirmation: ""
         }))
+    }
+
+    if(isLoading) {
+        return <Spinner /> 
     }
 
     return (
@@ -90,7 +122,12 @@ const Register = () => {
                     </label>
                 </div>
                 <div>
-                    <button type='submit' className='px-6 py-1 text-white rounded-full bg-[#1A8CD8] hover:bg-[#1584ce]'>Register</button>
+                    <button type='submit' className='px-6 py-1 text-white rounded-full bg-[#1A8CD8] hover:bg-[#1584ce]'>
+                        <div className='flex items-center'>
+                        <FaUserPlus className='mr-1'/>
+                        Register
+                        </div>
+                        </button>
                 </div>
             </form>
         </>
