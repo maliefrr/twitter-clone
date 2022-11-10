@@ -67,16 +67,24 @@ const login = asyncHandler(async (req,res) => {
             message: "User not exist"
         })
     }
-    res.status(200).json({
-        statusCode: 200,
-        message: "login success",
-        data: {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            token: getToken(user._id)
-        }
-    })
+    const userLogin = await bcrypt.compare(password,user.password)
+    if(!userLogin) {
+        res.status(400).json({
+            statusCode: 400,
+            message: "Invalid Login please check the email and password from your input"
+        })
+    } else {
+        res.status(200).json({
+            statusCode: 200,
+            message: "login success",
+            data: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                token: getToken(user._id)
+            }
+        })
+    }
 });
 
 // @desc get user profile
